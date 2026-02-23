@@ -21,7 +21,20 @@ Full definitions, expected ranges, and anomaly interpretation: [docs/custom_metr
 - **Instrumentation**: A FastAPI middleware (`EMFMetricsMiddleware`) captures path, status code, latency, and active-request count per request, then flushes an EMF JSON payload to **stdout**.
 - **Collection**: ECS `awslogs` driver forwards stdout to CloudWatch Logs (`/ecs/custom-metrics-logging`). CloudWatch automatically extracts EMF metrics -- no CloudWatch Agent or `PutMetricData` needed.
 - **Dashboard**: Terraform-managed CloudWatch dashboard with widgets for all five metrics, broken down by endpoint.
-- **Alerting**: CloudWatch alarm triggers when `ErrorCount` sum >= 5 over 2 minutes.
+- **Alerting**: Six CloudWatch alarms covering multiple alarm types with severity-based response:
+
+  | Type | Alarm | Severity | Purpose |
+  |------|-------|----------|---------|
+  | **Threshold** | High Error Count | HIGH | Error spikes ≥5 in 2min (all endpoints) |
+  | **Threshold** | Performance Degradation | MEDIUM | Avg latency >100ms for 2min |
+  | **Threshold** | P99 Latency Spike | MEDIUM | Tail latency >200ms |
+  | **Metric Math** | High Error Rate | HIGH | Error rate >10% of requests (calculated) |
+  | **Threshold** | Service Unavailable | CRITICAL | No traffic for 10min (detects complete outage) |
+  | **Composite** | Service Degraded | HIGH | Errors AND latency (multi-signal) |
+
+  **All alarms are testable immediately** without requiring weeks of baseline data. Thresholds are initial estimates; tune based on observed patterns.
+
+  Complete runbooks, baseline collection guidance, and testing procedures: [docs/alarms.md](docs/alarms.md)
 
 ## Project Structure
 
@@ -75,7 +88,40 @@ Verify:
 1. **Logs**: CloudWatch Logs > `/ecs/custom-metrics-logging` -- EMF JSON lines with `_aws` section.
 2. **Metrics**: CloudWatch Metrics > namespace `CustomMetricsLogging/App` -- all five metrics present.
 3. **Dashboard**: CloudWatch Dashboards > **szzuk-custom-metrics-logging-dashboard** -- widgets show time-series data.
-4. **Alarm**: Send 5+ requests to `/error` within 2 minutes -- alarm moves to ALARM state.
+4. **Alarms**: Test different alarm types:
+
+```bash
+# Test Threshold Alarm: High Error Count
+for i in {1..6}; do curl http://<public-ip>/error; sleep 1; done
+# Expected: high-error-count → ALARM (HIGH severity)
+
+# Test Metric Math Alarm: High Error Rate (percentage-based)
+# Send 10 requests with 5 errors (50% error rate)
+for i in {1..5}; do curl http://<public-ip>/; sleep 1; done &
+for i in {1..5}; do curl http://<public-ip>/error; sleep 0.5; done &
+wait
+# Expected: high-error-rate → ALARM (50% >> 10% threshold)
+
+# Test Composite Alarm: Service Degraded (requires both errors + latency)
+# Terminal 1: Generate errors
+while true; do curl http://<public-ip>/error; sleep 1; done &
+# Terminal 2: Generate slow requests (requires /slow endpoint)
+while true; do curl http://<public-ip>/slow; sleep 0.5; done &
+# Expected: service-degraded → ALARM after 2-3 min (HIGH severity)
+
+# Monitor all alarm states and severity
+aws cloudwatch describe-alarms \
+  --alarm-name-prefix "szzuk-custom-metrics-logging" \
+  --region eu-central-1 \
+  --query 'MetricAlarms[*].[AlarmName,StateValue]' \
+  --output table
+
+aws cloudwatch describe-composite-alarms \
+  --alarm-name-prefix "szzuk-custom-metrics-logging" \
+  --region eu-central-1
+```
+
+Complete testing guide with all alarm types: [docs/alarms.md](docs/alarms.md)
 
 ## Results
 
