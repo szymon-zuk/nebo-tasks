@@ -106,6 +106,14 @@ def trigger_error():
     return JSONResponse(status_code=500, content={"error": "Intentional error for testing"})
 
 
+@app.get("/slow")
+def slow_endpoint():
+    import time
+
+    time.sleep(0.15)
+    return {"message": "Slow response"}
+
+
 if __name__ == "__main__":
     import uvicorn
 
