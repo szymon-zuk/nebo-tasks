@@ -59,9 +59,8 @@ resource "aws_secretsmanager_secret" "api_key" {
 resource "aws_secretsmanager_secret_version" "api_key" {
   secret_id = aws_secretsmanager_secret.api_key.id
   secret_string = jsonencode({
-    api_key    = random_password.api_key.result
-    service    = var.api_service_name
-    created_at = timestamp()
+    api_key = random_password.api_key.result
+    service = var.api_service_name
   })
 }
 
@@ -101,6 +100,21 @@ resource "random_password" "jwt_secret" {
   special = true
 }
 
+resource "random_password" "encryption_key" {
+  length  = 64
+  special = false
+}
+
+resource "random_password" "session_secret" {
+  length  = 48
+  special = true
+}
+
+resource "random_password" "webhook_secret" {
+  length  = 32
+  special = false
+}
+
 resource "aws_secretsmanager_secret" "app_config" {
   name        = "${var.project_name}-${var.environment}-app-config"
   description = "Application configuration secrets for ${var.environment}"
@@ -118,9 +132,9 @@ resource "aws_secretsmanager_secret_version" "app_config" {
   secret_id = aws_secretsmanager_secret.app_config.id
   secret_string = jsonencode({
     jwt_secret         = random_password.jwt_secret.result
-    encryption_key     = base64encode(random_password.jwt_secret.result)
-    session_secret     = random_password.jwt_secret.result
-    webhook_secret     = substr(random_password.jwt_secret.result, 0, 32)
+    encryption_key     = base64encode(random_password.encryption_key.result)
+    session_secret     = random_password.session_secret.result
+    webhook_secret     = random_password.webhook_secret.result
     oauth_client_id    = "app-${var.environment}-client"
     oauth_redirect_uri = "https://${var.environment}.example.com/callback"
   })

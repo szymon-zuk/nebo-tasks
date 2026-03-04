@@ -16,10 +16,10 @@ variable "secret_recovery_window_days" {
   default     = 7
 }
 
-variable "enable_secret_rotation" {
-  description = "Enable automatic secret rotation"
-  type        = bool
-  default     = false
+variable "rotation_interval_days" {
+  description = "Recommended number of days between manual secret rotations"
+  type        = number
+  default     = 30
 }
 
 variable "database_username" {

@@ -101,7 +101,7 @@ aws secretsmanager get-secret-value \
 ### Reader Role (`secrets-reader`)
 - **Purpose**: Application runtime access to secrets
 - **Permissions**: `GetSecretValue`, `DescribeSecret`, `ListSecrets`
-- **Used by**: ECS tasks, Lambda functions, EC2 instances
+- **Used by**: EC2 instances (extensible to ECS tasks, Lambda functions)
 - **Principle**: Least privilege - read-only access
 
 ### Admin Role (`secrets-admin`)
@@ -126,25 +126,6 @@ The project includes a working example (`example-application.tf`) that deploys a
 - **Security Group**: Allows SSH access (port 22)
 - **Pre-installed Tools**: AWS CLI, jq for JSON parsing
 
-### Helper Scripts (Auto-created on Instance)
-
-The EC2 instance comes with ready-to-use scripts:
-
-**`retrieve-all-secrets.sh`** - Retrieves all 4 secrets and displays them
-```bash
-./retrieve-all-secrets.sh
-```
-
-**`get-secret.sh`** - Retrieves a specific secret
-```bash
-./get-secret.sh db-password
-./get-secret.sh api-key
-./get-secret.sh ssh-key
-./get-secret.sh app-config
-```
-
-**`README.txt`** - Usage instructions and examples
-
 ### Testing the Example
 
 1. **Deploy the infrastructure:**
@@ -156,26 +137,24 @@ The EC2 instance comes with ready-to-use scripts:
 
 2. **Connect to the EC2 instance:**
    ```bash
-   # Using EC2 Instance Connect (no SSH key needed)
    aws ec2-instance-connect ssh \
-     --instance-id <instance-id> \
+     --instance-id $(terraform output -raw ec2_instance_id) \
      --region eu-central-1 \
      --profile softserve-lab
-
-   # Get the instance ID from Terraform output
-   terraform output ec2_instance_id
    ```
 
-3. **Retrieve secrets on the instance:**
+3. **Verify boot-time access check passed:**
    ```bash
-   # View instructions
-   cat README.txt
+   cat boot-status.txt
+   ```
 
-   # Retrieve all secrets
-   ./retrieve-all-secrets.sh
-
-   # Retrieve specific secret
-   ./get-secret.sh db-password
+4. **Retrieve a secret using AWS CLI:**
+   ```bash
+   aws secretsmanager get-secret-value \
+     --secret-id szzuk-dev-db-password \
+     --region eu-central-1 \
+     --query SecretString \
+     --output text | jq .
    ```
 
 ### How It Works
@@ -210,10 +189,6 @@ iaac_secret_management/
 ├── secrets.tf                 # Secrets Manager resources
 ├── iam.tf                     # IAM roles and policies
 ├── example-application.tf     # EC2 example application
-├── scripts/
-│   ├── retrieve-secret.sh     # Helper script to retrieve secrets
-│   ├── rotate-secret.sh       # Helper script to rotate secrets
-│   └── create-lambda-package.sh
 └── README.md                  # This file
 ```
 
@@ -231,20 +206,65 @@ iaac_secret_management/
 - [x] IAM role-based access (no hardcoded credentials)
 - [x] Runtime secret retrieval (not stored on EC2 filesystem)
 
-## Helper Scripts
+## Secret Rotation
 
-### `retrieve-secret.sh`
-Retrieve a secret from the command line:
+Secrets can be rotated at any time via the AWS CLI without modifying any Terraform code. Rotation generates a new value and stores it as a new secret version in Secrets Manager.
+
+### Rotate a Secret
+
 ```bash
-./scripts/retrieve-secret.sh db-password
-./scripts/retrieve-secret.sh api-key
+# Generate a new password and update the db-password secret
+NEW_PASS=$(aws secretsmanager get-random-password \
+  --password-length 32 \
+  --require-each-included-type \
+  --exclude-characters '"@/\\' \
+  --query RandomPassword \
+  --output text \
+  --profile softserve-lab \
+  --region eu-central-1)
+
+# Retrieve current value, update the password field, and store the new version
+CURRENT=$(aws secretsmanager get-secret-value \
+  --secret-id szzuk-dev-db-password \
+  --query SecretString \
+  --output text \
+  --profile softserve-lab \
+  --region eu-central-1)
+
+UPDATED=$(echo "$CURRENT" | jq --arg pw "$NEW_PASS" '.password = $pw')
+
+aws secretsmanager put-secret-value \
+  --secret-id szzuk-dev-db-password \
+  --secret-string "$UPDATED" \
+  --profile softserve-lab \
+  --region eu-central-1
 ```
 
-### `rotate-secret.sh`
-Rotate a secret value:
+### Verify Rotation
+
 ```bash
-./scripts/rotate-secret.sh db-password
+# Check version history
+aws secretsmanager describe-secret \
+  --secret-id szzuk-dev-db-password \
+  --query 'VersionIdsToStages' \
+  --profile softserve-lab \
+  --region eu-central-1
+
+# Retrieve the updated value
+aws secretsmanager get-secret-value \
+  --secret-id szzuk-dev-db-password \
+  --query SecretString \
+  --output text \
+  --profile softserve-lab \
+  --region eu-central-1 | jq .
 ```
+
+### Key Points
+
+- No Terraform code changes required to rotate any secret
+- Previous secret versions are retained by Secrets Manager
+- All rotation actions are logged in CloudTrail for audit
+- Recommended rotation interval: every 30 days
 
 ## Troubleshooting
 

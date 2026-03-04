@@ -45,12 +45,7 @@ resource "aws_iam_policy" "secrets_read_policy" {
           "secretsmanager:GetSecretValue",
           "secretsmanager:DescribeSecret"
         ]
-        Resource = [
-          aws_secretsmanager_secret.db_password.arn,
-          aws_secretsmanager_secret.api_key.arn,
-          aws_secretsmanager_secret.ssh_private_key.arn,
-          aws_secretsmanager_secret.app_config.arn
-        ]
+        Resource = local.all_secret_arns
       },
       {
         Sid    = "ListSecrets"
@@ -122,12 +117,7 @@ resource "aws_iam_policy" "secrets_admin_policy" {
         Action = [
           "secretsmanager:*"
         ]
-        Resource = [
-          aws_secretsmanager_secret.db_password.arn,
-          aws_secretsmanager_secret.api_key.arn,
-          aws_secretsmanager_secret.ssh_private_key.arn,
-          aws_secretsmanager_secret.app_config.arn
-        ]
+        Resource = local.all_secret_arns
       },
       {
         Sid    = "ListAllSecrets"
@@ -162,11 +152,22 @@ data "aws_caller_identity" "current" {}
 # Resource Policy for Secrets (Cross-Account Access Control)
 # ============================================
 
-# Example resource policy preventing cross-account access
-resource "aws_secretsmanager_secret_policy" "db_password_policy" {
-  secret_arn = aws_secretsmanager_secret.db_password.arn
+locals {
+  all_secret_arns = [
+    aws_secretsmanager_secret.db_password.arn,
+    aws_secretsmanager_secret.api_key.arn,
+    aws_secretsmanager_secret.ssh_private_key.arn,
+    aws_secretsmanager_secret.app_config.arn,
+  ]
 
-  policy = jsonencode({
+  all_secrets = {
+    db_password     = aws_secretsmanager_secret.db_password.arn
+    api_key         = aws_secretsmanager_secret.api_key.arn
+    ssh_private_key = aws_secretsmanager_secret.ssh_private_key.arn
+    app_config      = aws_secretsmanager_secret.app_config.arn
+  }
+
+  deny_external_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
@@ -183,4 +184,10 @@ resource "aws_secretsmanager_secret_policy" "db_password_policy" {
       }
     ]
   })
+}
+
+resource "aws_secretsmanager_secret_policy" "deny_external" {
+  for_each   = local.all_secrets
+  secret_arn = each.value
+  policy     = local.deny_external_policy
 }
