@@ -20,8 +20,10 @@ terraform apply
 
 This will create:
 - 4 secrets in AWS Secrets Manager (all prefixed with "szzuk-dev-")
-- 2 IAM roles with RBAC policies
-- Example Lambda and ECS resources
+- 2 IAM roles with RBAC policies (reader + admin)
+- 1 EC2 instance demonstrating secret retrieval
+- 1 Lambda function for automatic secret rotation
+- Resource policies preventing cross-account access
 
 ### 4. View Outputs
 ```bash
@@ -40,10 +42,12 @@ aws secretsmanager list-secrets \
 
 ### Retrieve a Secret
 ```bash
-./scripts/retrieve-secret.sh db-password
-./scripts/retrieve-secret.sh api-key
-./scripts/retrieve-secret.sh ssh-key
-./scripts/retrieve-secret.sh app-config
+aws secretsmanager get-secret-value \
+  --secret-id szzuk-dev-db-password \
+  --query SecretString \
+  --output text \
+  --profile softserve-lab \
+  --region eu-central-1 | jq .
 ```
 
 ## Cleanup

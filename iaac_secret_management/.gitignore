@@ -5,6 +5,7 @@
 .terraform/
 .terraform.lock.hcl
 terraform.tfstate.d/
+tfplan
 
 # Secret files - NEVER commit these
 secrets/
