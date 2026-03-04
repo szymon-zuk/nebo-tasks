@@ -1,6 +1,4 @@
-# ============================================
 # IAM Role for Secret Access - Read Only
-# ============================================
 
 resource "aws_iam_role" "secrets_reader" {
   name        = "${var.project_name}-${var.environment}-secrets-reader"
@@ -74,9 +72,7 @@ resource "aws_iam_role_policy_attachment" "secrets_reader_attach" {
   policy_arn = aws_iam_policy.secrets_read_policy.arn
 }
 
-# ============================================
 # IAM Role for Secret Management - Admin
-# ============================================
 
 resource "aws_iam_role" "secrets_admin" {
   name        = "${var.project_name}-${var.environment}-secrets-admin"
@@ -142,15 +138,11 @@ resource "aws_iam_role_policy_attachment" "secrets_admin_attach" {
   policy_arn = aws_iam_policy.secrets_admin_policy.arn
 }
 
-# ============================================
 # Data source for current AWS account
-# ============================================
 
 data "aws_caller_identity" "current" {}
 
-# ============================================
 # Resource Policy for Secrets (Cross-Account Access Control)
-# ============================================
 
 locals {
   all_secret_arns = [
