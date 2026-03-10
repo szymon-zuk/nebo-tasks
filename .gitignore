@@ -216,3 +216,6 @@ terraform.tfstate.backup
 terraform.tfvars
 terraform.tfvars.backup
 tfplan
+*.tfplan
+*.bin
+plans/
