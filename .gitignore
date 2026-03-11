@@ -208,6 +208,9 @@ marimo/_lsp/
 __marimo__/
 *.pem
 
+# Packer
+manifest.json
+
 # Terraform
 .terraform/
 .terraform.lock.hcl
