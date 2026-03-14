@@ -201,6 +201,8 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 CLAUDE.md
+.claude
+.planning
 
 # Marimo
 marimo/_static/
@@ -222,3 +224,7 @@ tfplan
 *.tfplan
 *.bin
 plans/
+
+# Exception: Track state files for databases_nosql_instance learning project
+!databases_nosql_instance/.terraform.lock.hcl
+!databases_nosql_instance/terraform.tfstate
