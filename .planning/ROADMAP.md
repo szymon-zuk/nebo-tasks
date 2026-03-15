@@ -13,8 +13,8 @@ This roadmap delivers production-grade DynamoDB infrastructure through four phas
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Terraform infrastructure with DynamoDB table, partition/sort keys, encryption, and tagging (completed 2026-03-14)
-- [x] **Phase 2: Access Patterns** - Global Secondary Index for price queries and e-commerce data model documentation (in progress)
-- [ ] **Phase 3: Operations** - Shell scripts for CRUD operations, queries, data loading, and cleanup
+- [x] **Phase 2: Access Patterns** - Global Secondary Index for price queries and e-commerce data model documentation (completed 2026-03-15)
+- [x] **Phase 3: Operations** - Shell scripts for CRUD operations, queries, data loading, and cleanup (completed 2026-03-15)
 - [ ] **Phase 4: Validation & Documentation** - Automated validation workflow and comprehensive README
 
 ## Phase Details
@@ -47,7 +47,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   7. Item size and RCU/WCU capacity calculations documented
 **Plans**: 2 plans
 - [x] 02-01: Add Global Secondary Index for Price Queries (completed 2026-03-15)
-- [ ] 02-02: Document E-Commerce Data Model and Create Sample Data
+- [x] 02-02: Document E-Commerce Data Model and Create Sample Data (completed 2026-03-15)
 
 ### Phase 3: Operations
 **Goal**: Shell scripts demonstrate all DynamoDB operations including CRUD, queries, data loading, and cleanup workflows
@@ -61,10 +61,8 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Script scripts/cleanup-data.sh removes all test data without destroying table or GSI structure
   6. All scripts are executable (chmod +x), include --profile softserve-lab --region eu-central-1 flags, and have usage instructions in comments
 **Plans**: 2 plans
-
-Plans:
-- [ ] 03-01-PLAN.md — CRUD and query operations scripts
-- [ ] 03-02-PLAN.md — Data loading and cleanup scripts
+- [x] 03-01: CRUD and query operations scripts (completed 2026-03-15)
+- [x] 03-02: Data loading and cleanup scripts (completed 2026-03-15)
 
 ### Phase 4: Validation & Documentation
 **Goal**: Automated validation confirms end-to-end infrastructure functionality and comprehensive documentation enables reproducibility
@@ -79,10 +77,9 @@ Plans:
   6. README includes CloudWatch monitoring guidance (ConsumedReadCapacityUnits, ConsumedWriteCapacityUnits, UserErrors for throttling)
   7. README includes troubleshooting section for common DynamoDB issues (throttling, attribute definition errors, capacity exhaustion)
   8. Manual validation checklist documents all acceptance criteria for project completion sign-off
-**Plans**: TBD
-
-Plans:
-- [ ] TBD (to be created during plan-phase)
+**Plans**: 2 plans
+- [ ] 04-01: Create End-to-End Validation Script
+- [ ] 04-02: Create Comprehensive Documentation and Manual Checklist
 
 ## Progress
 
@@ -92,6 +89,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete    | 2026-03-14 |
-| 2. Access Patterns | 1/2 | In progress | - |
-| 3. Operations | 0/2 | Not started | - |
-| 4. Validation & Documentation | 0/TBD | Not started | - |
+| 2. Access Patterns | 2/2 | Complete | 2026-03-15 |
+| 3. Operations | 2/2 | Complete | 2026-03-15 |
+| 4. Validation & Documentation | 0/2 | Not started | - |

@@ -66,10 +66,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Validation
 
-- [ ] **VAL-01**: Script scripts/validate-infra.sh runs end-to-end test workflow
-- [ ] **VAL-02**: Validation workflow: load data → CRUD operations → query GSI → cleanup → verify
-- [ ] **VAL-03**: Script uses terraform output values to get table name dynamically
-- [ ] **VAL-04**: Script exits with non-zero status code on any failure
+- [x] **VAL-01**: Script scripts/validate-infra.sh runs end-to-end test workflow
+- [x] **VAL-02**: Validation workflow: load data → CRUD operations → query GSI → cleanup → verify
+- [x] **VAL-03**: Script uses terraform output values to get table name dynamically
+- [x] **VAL-04**: Script exits with non-zero status code on any failure
 - [ ] **VAL-05**: Manual validation checklist documents all acceptance criteria
 
 ### Documentation
@@ -166,10 +166,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CLEAN-02 | Phase 3 | Complete |
 | CLEAN-03 | Phase 3 | Complete |
 | CLEAN-04 | Phase 3 | Complete |
-| VAL-01 | Phase 4 | Pending |
-| VAL-02 | Phase 4 | Pending |
-| VAL-03 | Phase 4 | Pending |
-| VAL-04 | Phase 4 | Pending |
+| VAL-01 | Phase 4 | Complete |
+| VAL-02 | Phase 4 | Complete |
+| VAL-03 | Phase 4 | Complete |
+| VAL-04 | Phase 4 | Complete |
 | VAL-05 | Phase 4 | Pending |
 | DOC-01 | Phase 4 | Pending |
 | DOC-02 | Phase 4 | Pending |
