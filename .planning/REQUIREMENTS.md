@@ -70,18 +70,18 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **VAL-02**: Validation workflow: load data → CRUD operations → query GSI → cleanup → verify
 - [x] **VAL-03**: Script uses terraform output values to get table name dynamically
 - [x] **VAL-04**: Script exits with non-zero status code on any failure
-- [ ] **VAL-05**: Manual validation checklist documents all acceptance criteria
+- [x] **VAL-05**: Manual validation checklist documents all acceptance criteria
 
 ### Documentation
 
-- [ ] **DOC-01**: README includes project overview with use case description
-- [ ] **DOC-02**: README includes architecture diagram or description of table structure and GSI
-- [ ] **DOC-03**: README includes setup instructions (terraform init/plan/apply)
-- [ ] **DOC-04**: README includes usage examples for all scripts
-- [ ] **DOC-05**: README documents query patterns (primary key lookup, category query, price range query)
-- [ ] **DOC-06**: README includes capacity calculations (RCU/WCU math for item sizes)
-- [ ] **DOC-07**: README includes CloudWatch monitoring guidance (key metrics to watch)
-- [ ] **DOC-08**: README includes troubleshooting section for common issues
+- [x] **DOC-01**: README includes project overview with use case description
+- [x] **DOC-02**: README includes architecture diagram or description of table structure and GSI
+- [x] **DOC-03**: README includes setup instructions (terraform init/plan/apply)
+- [x] **DOC-04**: README includes usage examples for all scripts
+- [x] **DOC-05**: README documents query patterns (primary key lookup, category query, price range query)
+- [x] **DOC-06**: README includes capacity calculations (RCU/WCU math for item sizes)
+- [x] **DOC-07**: README includes CloudWatch monitoring guidance (key metrics to watch)
+- [x] **DOC-08**: README includes troubleshooting section for common issues
 
 ## v2 Requirements
 
@@ -170,15 +170,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VAL-02 | Phase 4 | Complete |
 | VAL-03 | Phase 4 | Complete |
 | VAL-04 | Phase 4 | Complete |
-| VAL-05 | Phase 4 | Pending |
-| DOC-01 | Phase 4 | Pending |
-| DOC-02 | Phase 4 | Pending |
-| DOC-03 | Phase 4 | Pending |
-| DOC-04 | Phase 4 | Pending |
-| DOC-05 | Phase 4 | Pending |
-| DOC-06 | Phase 4 | Pending |
-| DOC-07 | Phase 4 | Pending |
-| DOC-08 | Phase 4 | Pending |
+| VAL-05 | Phase 4 | Complete |
+| DOC-01 | Phase 4 | Complete |
+| DOC-02 | Phase 4 | Complete |
+| DOC-03 | Phase 4 | Complete |
+| DOC-04 | Phase 4 | Complete |
+| DOC-05 | Phase 4 | Complete |
+| DOC-06 | Phase 4 | Complete |
+| DOC-07 | Phase 4 | Complete |
+| DOC-08 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 51 total
