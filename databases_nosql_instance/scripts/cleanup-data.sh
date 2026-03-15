@@ -139,7 +139,7 @@ confirm_deletion() {
 scan_all_items() {
     local table_name="$1"
 
-    log_info "Scanning table for all items (keys only)..."
+    log_info "Scanning table for all items (keys only)..." >&2
 
     local all_items="[]"
     local last_key="null"
@@ -182,7 +182,7 @@ scan_all_items() {
         all_items=$(echo "$all_items $items" | jq -s 'add')
         total_scanned=$((total_scanned + items_count))
 
-        log_info "Page $page_count: scanned $items_count items (total: $total_scanned)"
+        log_info "Page $page_count: scanned $items_count items (total: $total_scanned)" >&2
 
         # Check for pagination
         last_key=$(echo "$response" | jq -c '.LastEvaluatedKey // null')
@@ -192,7 +192,7 @@ scan_all_items() {
         fi
     done
 
-    log_info "Scan completed: found $total_scanned items total"
+    log_info "Scan completed: found $total_scanned items total" >&2
 
     echo "$all_items"
     return 0
