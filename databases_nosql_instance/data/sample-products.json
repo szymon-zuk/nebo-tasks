@@ -1,0 +1,106 @@
+[
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440001"},
+    "Category": {"S": "Electronics"},
+    "Price": {"N": "799.99"},
+    "Name": {"S": "4K Smart TV 55-inch"},
+    "Stock": {"N": "12"},
+    "Description": {"S": "Ultra HD television with HDR and smart features"}
+  },
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440002"},
+    "Category": {"S": "Electronics"},
+    "Price": {"N": "299.99"},
+    "Name": {"S": "Wireless Headphones"},
+    "Stock": {"N": "45"},
+    "Description": {"S": "Premium noise-canceling headphones with active noise cancellation"}
+  },
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440003"},
+    "Category": {"S": "Electronics"},
+    "Price": {"N": "1299.99"},
+    "Name": {"S": "Gaming Laptop 15.6-inch"},
+    "Stock": {"N": "8"},
+    "Description": {"S": "High-performance gaming laptop with RTX graphics and 32GB RAM"}
+  },
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440004"},
+    "Category": {"S": "Electronics"},
+    "Price": {"N": "49.99"},
+    "Name": {"S": "Wireless Mouse"},
+    "Stock": {"N": "67"},
+    "Description": {"S": "Ergonomic wireless mouse with precision tracking"}
+  },
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440005"},
+    "Category": {"S": "Books"},
+    "Price": {"N": "24.99"},
+    "Name": {"S": "Cloud Architecture Patterns"},
+    "Stock": {"N": "89"},
+    "Description": {"S": "Comprehensive guide to AWS cloud design patterns and best practices"}
+  },
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440006"},
+    "Category": {"S": "Books"},
+    "Price": {"N": "34.99"},
+    "Name": {"S": "DevOps Handbook"},
+    "Stock": {"N": "52"},
+    "Description": {"S": "Essential guide to DevOps practices and continuous delivery"}
+  },
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440007"},
+    "Category": {"S": "Books"},
+    "Price": {"N": "19.99"},
+    "Name": {"S": "Python for Data Science"},
+    "Stock": {"N": "0"},
+    "Description": {"S": "Practical guide to data analysis and machine learning with Python"}
+  },
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440008"},
+    "Category": {"S": "Home"},
+    "Price": {"N": "599.99"},
+    "Name": {"S": "Robot Vacuum Cleaner"},
+    "Stock": {"N": "23"},
+    "Description": {"S": "Smart robot vacuum with mapping technology and app control"}
+  },
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440009"},
+    "Category": {"S": "Home"},
+    "Price": {"N": "149.99"},
+    "Name": {"S": "Air Purifier"},
+    "Stock": {"N": "34"},
+    "Description": {"S": "HEPA air purifier for rooms up to 500 square feet"}
+  },
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440010"},
+    "Category": {"S": "Home"},
+    "Price": {"N": "899.99"},
+    "Name": {"S": "Ergonomic Office Chair"},
+    "Stock": {"N": "15"},
+    "Description": {"S": "Premium ergonomic chair with lumbar support and adjustable features"}
+  },
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440011"},
+    "Category": {"S": "Clothing"},
+    "Price": {"N": "89.99"},
+    "Name": {"S": "Waterproof Hiking Jacket"},
+    "Stock": {"N": "41"},
+    "Description": {"S": "Breathable waterproof jacket for outdoor activities"}
+  },
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440012"},
+    "Category": {"S": "Clothing"},
+    "Price": {"N": "39.99"},
+    "Name": {"S": "Athletic Running Shoes"},
+    "Stock": {"N": "78"},
+    "Description": {"S": "Lightweight running shoes with cushioned sole and breathable mesh"}
+  },
+  {
+    "ProductID": {"S": "550e8400-e29b-41d4-a716-446655440013"},
+    "Category": {"S": "Clothing"},
+    "Price": {"N": "24.99"},
+    "Name": {"S": "Cotton T-Shirt Pack"},
+    "Stock": {"N": "95"},
+    "Description": {"S": "Pack of 3 comfortable cotton t-shirts in assorted colors"}
+  }
+]
