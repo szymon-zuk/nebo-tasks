@@ -301,6 +301,7 @@ echo ""
 
 QUERY6_RESULT=$(aws dynamodb query \
     --table-name "$TABLE_NAME" \
+    --index-name PriceIndex \
     --key-condition-expression "Category = :cat" \
     --expression-attribute-values "{\":cat\": {\"S\": \"Electronics\"}}" \
     --limit 3 \
