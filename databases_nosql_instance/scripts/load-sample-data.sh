@@ -76,7 +76,7 @@ get_table_name() {
     if [[ $# -gt 0 ]]; then
         echo "$1"
     else
-        log_info "Reading table name from terraform output..."
+        log_info "Reading table name from terraform output..." >&2
         cd "$PROJECT_DIR" || exit 1
         if ! terraform output -raw dynamodb_table_name 2>/dev/null; then
             log_error "Failed to read table name from terraform output"
