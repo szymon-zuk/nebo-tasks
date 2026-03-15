@@ -16,6 +16,20 @@ resource "aws_dynamodb_table" "products" {
     type = "S"
   }
 
+  attribute {
+    name = "Price"
+    type = "N"
+  }
+
+  global_secondary_index {
+    name            = "PriceIndex"
+    hash_key        = "Category"
+    range_key       = "Price"
+    projection_type = "ALL"
+    read_capacity   = 25
+    write_capacity  = 25
+  }
+
   tags = {
     Name        = "${var.project_name}-${var.environment}-products"
     Environment = var.environment
