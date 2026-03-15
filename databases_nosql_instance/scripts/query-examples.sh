@@ -25,8 +25,8 @@
 #   ./scripts/query-examples.sh szzuk-dev-products
 #
 # Operations Demonstrated:
-#   1. Query on Primary Key (Category partition key only)
-#   2. Query on PriceIndex GSI with range conditions
+#   1. Query on PriceIndex GSI by Category (partition key only)
+#   2. Query on PriceIndex GSI with price range conditions
 #   3. Query with sort order control
 #   4. Query with projection expressions
 #   5. Query with pagination (limit)
@@ -91,19 +91,20 @@ echo ""
 ################################################################################
 
 ################################################################################
-# OPERATION 1: Query on Primary Key (Partition Key Only)
+# OPERATION 1: Query on GSI (Partition Key Only)
 ################################################################################
 
 echo "============================================================"
-echo "OPERATION 1: Query on Primary Key"
+echo "OPERATION 1: Query on GSI by Category"
 echo "============================================================"
 echo ""
 echo "Query for all products in 'Electronics' category"
-echo "Uses: Partition key (Category) only"
+echo "Uses: PriceIndex GSI with Category partition key only"
 echo ""
 
 QUERY1_RESULT=$(aws dynamodb query \
     --table-name "$TABLE_NAME" \
+    --index-name PriceIndex \
     --key-condition-expression "Category = :cat" \
     --expression-attribute-values "{\":cat\": {\"S\": \"Electronics\"}}" \
     --return-consumed-capacity TOTAL \
