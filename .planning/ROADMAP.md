@@ -48,6 +48,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans
 - [x] 02-01: Add Global Secondary Index for Price Queries (completed 2026-03-15)
 - [ ] 02-02: Document E-Commerce Data Model and Create Sample Data
+
 ### Phase 3: Operations
 **Goal**: Shell scripts demonstrate all DynamoDB operations including CRUD, queries, data loading, and cleanup workflows
 **Depends on**: Phase 2
@@ -59,10 +60,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Script scripts/load-sample-data.sh populates table with sample products from data/sample-products.json using BatchWriteItem
   5. Script scripts/cleanup-data.sh removes all test data without destroying table or GSI structure
   6. All scripts are executable (chmod +x), include --profile softserve-lab --region eu-central-1 flags, and have usage instructions in comments
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] TBD (to be created during plan-phase)
+- [ ] 03-01-PLAN.md — CRUD and query operations scripts
+- [ ] 03-02-PLAN.md — Data loading and cleanup scripts
 
 ### Phase 4: Validation & Documentation
 **Goal**: Automated validation confirms end-to-end infrastructure functionality and comprehensive documentation enables reproducibility
@@ -91,5 +93,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete    | 2026-03-14 |
 | 2. Access Patterns | 1/2 | In progress | - |
-| 3. Operations | 0/TBD | Not started | - |
+| 3. Operations | 0/2 | Not started | - |
 | 4. Validation & Documentation | 0/TBD | Not started | - |
