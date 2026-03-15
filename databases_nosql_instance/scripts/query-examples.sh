@@ -137,7 +137,7 @@ echo "============================================================"
 echo "OPERATION 2: Query on PriceIndex GSI (Price Range)"
 echo "============================================================"
 echo ""
-echo "Query for Electronics products priced between $100 and $500"
+echo 'Query for Electronics products priced between $100 and $500'
 echo "Uses: GSI PriceIndex with Category (HASH) and Price (RANGE)"
 echo ""
 
@@ -179,7 +179,7 @@ echo "============================================================"
 echo "OPERATION 3: Query with >= and <= Operators"
 echo "============================================================"
 echo ""
-echo "Query for Books priced >= $20 and <= $30"
+echo 'Query for Books priced >= $20 and <= $30'
 echo "Demonstrates alternative range condition syntax"
 echo ""
 
