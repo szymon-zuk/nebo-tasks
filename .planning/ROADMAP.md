@@ -12,8 +12,8 @@ This roadmap delivers production-grade DynamoDB infrastructure through four phas
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Terraform infrastructure with DynamoDB table, partition/sort keys, encryption, and tagging
-- [ ] **Phase 2: Access Patterns** - Global Secondary Index for price queries and e-commerce data model documentation
+- [x] **Phase 1: Foundation** - Terraform infrastructure with DynamoDB table, partition/sort keys, encryption, and tagging (completed 2026-03-14)
+- [x] **Phase 2: Access Patterns** - Global Secondary Index for price queries and e-commerce data model documentation (in progress)
 - [ ] **Phase 3: Operations** - Shell scripts for CRUD operations, queries, data loading, and cleanup
 - [ ] **Phase 4: Validation & Documentation** - Automated validation workflow and comprehensive README
 
@@ -30,8 +30,8 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Encryption at rest is enabled using AWS-managed keys (default)
   5. All required tags present: Owner (szzuk@softserveinc.com), Environment (dev), Project (databases-nosql-instance), ManagedBy (terraform)
 **Plans**: 2 plans
-**Plans**: TBD
-- [ ] TBD (to be created during plan-phase)
+- [x] 01-01: Create Terraform Configuration Files (completed 2026-03-14)
+- [x] 01-02: Provision DynamoDB Table Infrastructure (completed 2026-03-14)
 
 ### Phase 2: Access Patterns
 **Goal**: Global Secondary Index enables efficient price range queries and e-commerce data model is documented with sample data
@@ -45,11 +45,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. E-commerce data model documented with attributes: ProductID (UUID), Category (string), Price (number), Name (string), Stock (number), Description (string)
   6. Sample data file (data/sample-products.json) contains 10-15 realistic e-commerce products
   7. Item size and RCU/WCU capacity calculations documented
-**Plans**: TBD
-
-Plans:
-- [ ] TBD (to be created during plan-phase)
-
+**Plans**: 2 plans
+- [x] 02-01: Add Global Secondary Index for Price Queries (completed 2026-03-15)
+- [ ] 02-02: Document E-Commerce Data Model and Create Sample Data
 ### Phase 3: Operations
 **Goal**: Shell scripts demonstrate all DynamoDB operations including CRUD, queries, data loading, and cleanup workflows
 **Depends on**: Phase 2
@@ -91,7 +89,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
-| 2. Access Patterns | 0/TBD | Not started | - |
+| 1. Foundation | 2/2 | Complete    | 2026-03-14 |
+| 2. Access Patterns | 1/2 | In progress | - |
 | 3. Operations | 0/TBD | Not started | - |
 | 4. Validation & Documentation | 0/TBD | Not started | - |
