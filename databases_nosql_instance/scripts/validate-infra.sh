@@ -159,7 +159,7 @@ get_table_name() {
     if [[ $# -gt 0 ]]; then
         echo "$1"
     else
-        log_info "Reading table name from terraform output..."
+        log_info "Reading table name from terraform output..." >&2
         cd "$PROJECT_DIR" || exit 1
 
         local table_name
