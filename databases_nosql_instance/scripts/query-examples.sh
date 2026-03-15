@@ -26,11 +26,12 @@
 #
 # Operations Demonstrated:
 #   1. Query on PriceIndex GSI by Category (partition key only)
-#   2. Query on PriceIndex GSI with price range conditions
-#   3. Query with sort order control
-#   4. Query with projection expressions
-#   5. Query with pagination (limit)
-#   6. Scan with FilterExpression (for comparison)
+#   2. Query on PriceIndex GSI with BETWEEN (price range)
+#   3. Query with >= operator (single comparison on sort key)
+#   4. Query with sort order control (reverse order)
+#   5. Query with projection expressions (specific attributes only)
+#   6. Query with pagination (limit)
+#   7. Scan with FilterExpression (for comparison - anti-pattern)
 #
 # Each operation includes:
 #   - Capacity consumption tracking
@@ -172,25 +173,24 @@ echo "$QUERY2_RESULT" | jq -r '.Items[] | {
 echo ""
 
 ################################################################################
-# OPERATION 3: Query with >= and <= Operators (Alternative Range Syntax)
+# OPERATION 3: Query with >= Operator (Single Comparison)
 ################################################################################
 
 echo "============================================================"
-echo "OPERATION 3: Query with >= and <= Operators"
+echo "OPERATION 3: Query with >= Operator"
 echo "============================================================"
 echo ""
-echo 'Query for Books priced >= $20 and <= $30'
-echo "Demonstrates alternative range condition syntax"
+echo 'Query for Books priced >= $25'
+echo "Demonstrates single comparison operator (alternative to BETWEEN)"
 echo ""
 
 QUERY3_RESULT=$(aws dynamodb query \
     --table-name "$TABLE_NAME" \
     --index-name PriceIndex \
-    --key-condition-expression "Category = :cat AND Price >= :minprice AND Price <= :maxprice" \
+    --key-condition-expression "Category = :cat AND Price >= :minprice" \
     --expression-attribute-values "{
         \":cat\": {\"S\": \"Books\"},
-        \":minprice\": {\"N\": \"20\"},
-        \":maxprice\": {\"N\": \"30\"}
+        \":minprice\": {\"N\": \"25\"}
     }" \
     --return-consumed-capacity TOTAL \
     --profile "$PROFILE" \
@@ -200,7 +200,7 @@ QUERY3_RESULT=$(aws dynamodb query \
 QUERY3_CAPACITY=$(echo "$QUERY3_RESULT" | jq -r '.ConsumedCapacity.CapacityUnits // 0')
 QUERY3_COUNT=$(echo "$QUERY3_RESULT" | jq -r '.Count')
 
-echo "✓ Query with >= and <= completed successfully"
+echo "✓ Query with >= completed successfully"
 echo "  Items returned: $QUERY3_COUNT"
 echo "  Consumed capacity: $QUERY3_CAPACITY read capacity units"
 echo ""
