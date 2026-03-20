@@ -825,30 +825,3 @@ databases_nosql_instance/
 │   └── validate-infra.sh        # End-to-end validation workflow
 └── README.md                    # This file
 ```
-
-## References
-
-- **AWS DynamoDB Documentation:** https://docs.aws.amazon.com/dynamodb/
-- **DynamoDB Best Practices:** https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/best-practices.html
-- **Terraform AWS Provider:** https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dynamodb_table
-- **Project conventions:** ../CLAUDE.md
-
-## Next Steps
-
-**After completing this project, you should understand:**
-1. How to provision DynamoDB tables with Terraform
-2. Partition key design for even data distribution
-3. When and how to use Global Secondary Indexes
-4. DynamoDB capacity planning and RCU/WCU calculations
-5. Query-first design pattern (avoid Scan in production)
-6. Batch operations with retry logic
-7. CloudWatch monitoring for DynamoDB
-8. Common troubleshooting scenarios
-
-**Future enhancements (out of scope for this milestone):**
-- Auto-scaling policies for dynamic capacity adjustment
-- DynamoDB Streams for change data capture
-- Point-in-time recovery (PITR) for backup
-- Transaction support for multi-item operations
-- Conditional writes for optimistic locking
-- TTL (Time To Live) for automatic item expiration
