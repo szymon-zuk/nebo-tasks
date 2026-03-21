@@ -225,10 +225,11 @@ tfplan
 *.bin
 plans/
 
-# Exception: Track state files for databases_nosql_instance learning project
-!databases_nosql_instance/.terraform.lock.hcl
-!databases_nosql_instance/terraform.tfstate
+databases_nosql_instance/.terraform.lock.hcl
+databases_nosql_instance/terraform.tfstate
 
-# Exception: track provider lock for network_traffic_controls
-!network_traffic_controls/.terraform.lock.hcl
-!network_traffic_controls/terraform.tfstate.lock.info
+network_traffic_controls/.terraform.lock.hcl
+network_traffic_controls/terraform.tfstate.lock.info
+
+network_infrastructure/.terraform.lock.hcl
+network_infrastructure/terraform.tfstate.lock.info
