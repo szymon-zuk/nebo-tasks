@@ -1,4 +1,4 @@
-# Use either an existing VPC (default) or create a dedicated lab VPC + IGW for a clean Resource map diagram.
+# Default: create a dedicated lab VPC + IGW (create_vpc = true). Set create_vpc = false to use vpc_id + existing IGW.
 
 data "aws_vpc" "selected" {
   count = var.create_vpc ? 0 : 1

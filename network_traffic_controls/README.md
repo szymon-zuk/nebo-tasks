@@ -25,10 +25,11 @@ Wait until both instances are **Online** in SSM, then:
 ./scripts/show-flow-samples.sh 30
 ```
 
-Paste results into [`docs/TEST_RESULTS.md`](docs/TEST_RESULTS.md).
+`show-flow-samples.sh` uses GNU `date` (`-d`); use WSL/Linux or adjust the script on macOS.
 
 ## Proof of completion
 
+Screenshots under [`static/`](static/).
 
 **Terraform apply**
 
