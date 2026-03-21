@@ -2,12 +2,11 @@
 # SG is stateful; NACL applies to every packet direction separately (ephemeral ports matter).
 
 locals {
-  vpc_cidr            = data.aws_vpc.selected.cidr_block
   admin_ssh_cidr_list = var.enable_ssh && var.trusted_admin_cidr != "" ? [var.trusted_admin_cidr] : []
 }
 
 resource "aws_network_acl" "client" {
-  vpc_id     = var.vpc_id
+  vpc_id     = local.vpc_id
   subnet_ids = [aws_subnet.client.id]
 
   dynamic "ingress" {
@@ -74,7 +73,7 @@ resource "aws_network_acl" "client" {
 }
 
 resource "aws_network_acl" "server" {
-  vpc_id     = var.vpc_id
+  vpc_id     = local.vpc_id
   subnet_ids = [aws_subnet.server.id]
 
   dynamic "ingress" {

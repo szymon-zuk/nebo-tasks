@@ -5,7 +5,7 @@ locals {
 resource "aws_security_group" "client" {
   name        = "${local.aws_name_prefix}-netdemo-client-sg"
   description = "Client instance: least-privilege egress; optional SSH from trusted CIDR"
-  vpc_id      = var.vpc_id
+  vpc_id      = local.vpc_id
 
   dynamic "ingress" {
     for_each = local.admin_ssh_cidr
@@ -39,7 +39,7 @@ resource "aws_security_group" "client" {
     from_port   = min(var.demo_app_port_allow, var.demo_app_port_nacl_deny)
     to_port     = max(var.demo_app_port_allow, var.demo_app_port_nacl_deny)
     protocol    = "tcp"
-    cidr_blocks = [data.aws_vpc.selected.cidr_block]
+    cidr_blocks = [local.vpc_cidr]
   }
 
   tags = {
@@ -51,7 +51,7 @@ resource "aws_security_group" "client" {
 resource "aws_security_group" "server" {
   name        = "${local.aws_name_prefix}-netdemo-server-sg"
   description = "Server: app ports from client SG only; optional SSH from trusted CIDR"
-  vpc_id      = var.vpc_id
+  vpc_id      = local.vpc_id
 
   dynamic "ingress" {
     for_each = local.admin_ssh_cidr

@@ -1,6 +1,11 @@
 locals {
   # AWS console / API names use a fixed org resource prefix plus environment.
   aws_name_prefix = "szzuk-${var.environment}"
+
+  # Exactly one of aws_vpc.lab or data.aws_vpc.selected exists, depending on create_vpc.
+  vpc_id   = coalescelist(aws_vpc.lab[*].id, data.aws_vpc.selected[*].id)[0]
+  vpc_cidr = coalescelist(aws_vpc.lab[*].cidr_block, data.aws_vpc.selected[*].cidr_block)[0]
+  igw_id   = coalescelist(aws_internet_gateway.lab[*].id, data.aws_internet_gateway.existing[*].id)[0]
 }
 
 provider "aws" {

@@ -61,8 +61,13 @@ output "flow_log_cloudwatch_log_group_name" {
   value       = aws_cloudwatch_log_group.flow_logs.name
 }
 
+output "vpc_id" {
+  description = "VPC containing the lab (created or existing)"
+  value       = local.vpc_id
+}
+
 output "vpc_cidr" {
-  value = data.aws_vpc.selected.cidr_block
+  value = local.vpc_cidr
 }
 
 output "demo_app_port_allow" {
