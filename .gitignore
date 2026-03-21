@@ -231,3 +231,4 @@ plans/
 
 # Exception: track provider lock for network_traffic_controls
 !network_traffic_controls/.terraform.lock.hcl
+!network_traffic_controls/terraform.tfstate.lock.info
