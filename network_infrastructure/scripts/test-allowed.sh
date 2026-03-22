@@ -21,6 +21,8 @@ wait_for_ssm_terminal_status() {
     sleep 2
     waited=$((waited + 2))
   done
+  echo "Timed out after ${max_wait}s waiting for SSM command status." >&2
+  return 1
 }
 
 ROOT="${1:-$(cd "$(dirname "$0")/.." && pwd)}"
@@ -42,7 +44,7 @@ OUT=$(aws ssm send-command \
   --query "Command.CommandId" \
   --output text)
 
-wait_for_ssm_terminal_status "$OUT" "$CLIENT_ID"
+wait_for_ssm_terminal_status "$OUT" "$CLIENT_ID" || true
 aws ssm get-command-invocation \
   --command-id "$OUT" \
   --instance-id "$CLIENT_ID" \

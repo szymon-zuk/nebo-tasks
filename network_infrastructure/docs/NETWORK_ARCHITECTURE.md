@@ -33,6 +33,12 @@ Single NAT Gateway in the **client** public subnet (single-AZ cost trade-off; pr
 
 NAT Gateway, EC2, Flow Logs ingestion, and Elastic IP incur charges. Run `terraform destroy` when finished.
 
+## Network ACLs
+
+Custom NACLs apply only to the **client** public subnet and the **private server** subnet. **public_secondary** and **private_a** use the VPC **default** NACL (for a new VPC that is allow-all). If you use `create_vpc = false`, confirm the default NACL or attach explicit NACLs if your org locks down defaults.
+
+Attaching to an existing VPC also requires an **Internet Gateway** on that VPC (Terraform reads it for `local.igw_id`).
+
 ## Validation
 
 From [`scripts/`](../scripts/): `test-allowed.sh`, `test-denied.sh`, `show-flow-samples.sh` after SSM shows instances **Online**.

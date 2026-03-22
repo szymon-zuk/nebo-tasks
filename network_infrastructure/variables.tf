@@ -61,9 +61,14 @@ variable "enable_ssh" {
 }
 
 variable "lab_subnet_netnum_start" {
-  description = "First of four consecutive /24 indices (cidrsubnet(..., 8, netnum)): public client, public secondary, private A, private server. Increase if any /24 collides in your VPC."
+  description = "First of four consecutive /24 indices (cidrsubnet(..., 8, netnum)): public client, public secondary, private A, private server. Must be 0-252 so netnum_start+3 fits in an 8-bit index inside the VPC /16."
   type        = number
   default     = 210
+
+  validation {
+    condition     = var.lab_subnet_netnum_start >= 0 && var.lab_subnet_netnum_start <= 252
+    error_message = "lab_subnet_netnum_start must be 0-252 (need four /24 indices within the /16)."
+  }
 }
 
 variable "demo_app_port_allow" {
