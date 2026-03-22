@@ -1,84 +1,70 @@
-import json
-import threading
+import logging
+import os
 import time
+import uuid
 
-from fastapi import FastAPI, Request
+import boto3
+from botocore.exceptions import BotoCoreError, ClientError
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
+logger = logging.getLogger(__name__)
 
-# Gauge for in-flight requests (used when emitting ActiveRequests).
-_active_requests = 0
-_active_requests_lock = threading.Lock()
+SERVICE_NAME = "fastapi-custom-metrics"
+METRIC_NAMESPACE = "CustomMetricsLogging/App"
+AWS_REGION = "eu-central-1"
+
+_cloudwatch_client = boto3.client("cloudwatch", region_name=AWS_REGION)
 
 
-def _flush_metrics(path: str, status_code: int, latency_ms: float, active_after: int) -> None:
-    """Write an EMF (Embedded Metric Format) JSON line to stdout.
+def _dims_endpoint(path: str) -> list[dict]:
+    return [{"Name": "Service", "Value": SERVICE_NAME}, {"Name": "Endpoint", "Value": path}]
 
-    CloudWatch Logs automatically extracts metrics from this format.
-    No async flush or CloudWatch Agent required -- just structured JSON to stdout.
-    """
-    timestamp_ms = int(time.time() * 1000)
 
-    metrics_definitions = [
-        {"Name": "RequestCount", "Unit": "Count"},
-        {"Name": "RequestLatencyMs", "Unit": "Milliseconds"},
-        {"Name": "ActiveRequests", "Unit": "Count"},
-        {"Name": "EndpointInvocations", "Unit": "Count"},
+_DIMS_SERVICE_ONLY = [{"Name": "Service", "Value": SERVICE_NAME}]
+
+
+def publish_metrics(metric_data: list[dict]) -> bool:
+    try:
+        _cloudwatch_client.put_metric_data(
+            Namespace=METRIC_NAMESPACE,
+            MetricData=metric_data,
+        )
+        return True
+    except (BotoCoreError, ClientError) as exc:
+        logger.error("Failed to publish metrics: %s", exc)
+        return False
+
+
+def publish_request_metrics(
+    path: str,
+    start: float,
+    *,
+    http_status: int,
+    business_metric: str | None = None,
+) -> None:
+    """RequestLatencyMs always; ErrorCount only when http_status >= 400; business counter on 2xx/3xx only."""
+    ms = (time.perf_counter() - start) * 1000.0
+    dim = _dims_endpoint(path)
+    data: list[dict] = [
+        {"MetricName": "RequestLatencyMs", "Dimensions": dim, "Unit": "Milliseconds", "Value": round(ms, 2)}
     ]
-    if status_code >= 400:
-        metrics_definitions.append({"Name": "ErrorCount", "Unit": "Count"})
-
-    emf_payload = {
-        "_aws": {
-            "Timestamp": timestamp_ms,
-            "CloudWatchMetrics": [
-                {
-                    "Namespace": "CustomMetricsLogging/App",
-                    "Dimensions": [["Service", "Endpoint"]],
-                    "Metrics": metrics_definitions,
-                }
-            ],
-        },
-        # Dimension values
-        "Service": "fastapi-custom-metrics",
-        "Endpoint": path,
-        # Metric values
-        "RequestCount": 1,
-        "RequestLatencyMs": round(latency_ms, 2),
-        "ActiveRequests": active_after,
-        "EndpointInvocations": 1,
-    }
-    if status_code >= 400:
-        emf_payload["ErrorCount"] = 1
-
-    # EMF: one JSON object per line to stdout
-    print(json.dumps(emf_payload), flush=True)
+    if http_status >= 400:
+        data.append({"MetricName": "ErrorCount", "Dimensions": dim, "Unit": "Count", "Value": 1.0})
+    if http_status < 400 and business_metric:
+        data.append(
+            {
+                "MetricName": business_metric,
+                "Dimensions": _DIMS_SERVICE_ONLY,
+                "Unit": "Count",
+                "Value": 1.0,
+            }
+        )
+    publish_metrics(data)
 
 
-class EMFMetricsMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        global _active_requests
-        start = time.perf_counter()
-        with _active_requests_lock:
-            _active_requests += 1
-            active_at_start = _active_requests
-        status_code = 500
-        try:
-            response = await call_next(request)
-            status_code = response.status_code
-            return response
-        finally:
-            with _active_requests_lock:
-                _active_requests -= 1
-                active_after = _active_requests
-            latency_ms = (time.perf_counter() - start) * 1000.0
-            path = request.url.path or "/"
-            _flush_metrics(path, status_code, latency_ms, active_after)
-
-
-app.add_middleware(EMFMetricsMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -90,28 +76,54 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
+    start = time.perf_counter()
+    publish_request_metrics("/", start, http_status=200)
     return {"message": "Hello, World!"}
 
 
 @app.get("/Welcome")
 def welcome(name: str):
+    start = time.perf_counter()
+    publish_request_metrics("/Welcome", start, http_status=200)
     return {"message": f"Welcome {name}!"}
 
 
 @app.get("/error")
 def trigger_error():
-    """Endpoint that returns 500 for testing ErrorCount and alerts."""
-    from fastapi.responses import JSONResponse
-
+    start = time.perf_counter()
+    publish_request_metrics("/error", start, http_status=500)
     return JSONResponse(status_code=500, content={"error": "Intentional error for testing"})
 
 
 @app.get("/slow")
 def slow_endpoint():
-    import time
-
+    start = time.perf_counter()
     time.sleep(0.15)
+    publish_request_metrics("/slow", start, http_status=200)
     return {"message": "Slow response"}
+
+
+@app.post("/orders")
+def mock_create_order():
+    start = time.perf_counter()
+    publish_request_metrics("/orders", start, http_status=200, business_metric="OrdersCount")
+    return {"order_id": str(uuid.uuid4()), "status": "created"}
+
+
+@app.post("/auth/login")
+def mock_login():
+    start = time.perf_counter()
+    uid = str(uuid.uuid4())
+    publish_request_metrics("/auth/login", start, http_status=200, business_metric="UserLoginCount")
+    return {"token": f"mock-{uid[:8]}", "user_id": uid}
+
+
+@app.post("/auth/signup")
+def mock_signup():
+    start = time.perf_counter()
+    uid = str(uuid.uuid4())
+    publish_request_metrics("/auth/signup", start, http_status=200, business_metric="UserSignupCount")
+    return {"user_id": uid, "status": "registered"}
 
 
 if __name__ == "__main__":

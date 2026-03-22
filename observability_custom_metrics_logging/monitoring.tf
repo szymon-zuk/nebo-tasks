@@ -10,13 +10,17 @@ resource "aws_cloudwatch_dashboard" "custom_metrics" {
         width  = 12
         height = 6
         properties = {
-          title  = "Request Count"
+          title  = "Request Latency (ms)"
           view   = "timeSeries"
           region = "eu-central-1"
           metrics = [
-            ["CustomMetricsLogging/App", "RequestCount", "Service", "fastapi-custom-metrics", "Endpoint", "/", { stat = "Sum" }],
-            ["...", "Endpoint", "/Welcome", { stat = "Sum" }],
-            ["...", "Endpoint", "/error", { stat = "Sum" }]
+            ["CustomMetricsLogging/App", "RequestLatencyMs", "Service", "fastapi-custom-metrics", "Endpoint", "/", { stat = "Average" }],
+            ["...", "Endpoint", "/Welcome", { stat = "Average" }],
+            ["...", "Endpoint", "/error", { stat = "Average" }],
+            ["...", "Endpoint", "/orders", { stat = "Average" }],
+            ["...", "Endpoint", "/auth/login", { stat = "Average" }],
+            ["...", "Endpoint", "/auth/signup", { stat = "Average" }],
+            ["...", "Endpoint", "/slow", { stat = "Average" }]
           ]
         }
       },
@@ -27,13 +31,13 @@ resource "aws_cloudwatch_dashboard" "custom_metrics" {
         width  = 12
         height = 6
         properties = {
-          title  = "Request Latency (ms)"
+          title  = "Error Count (GET /error only)"
           view   = "timeSeries"
           region = "eu-central-1"
+          period = 60
+          # Only /error publishes ErrorCount today; other routes are 2xx and never emit this metric.
           metrics = [
-            ["CustomMetricsLogging/App", "RequestLatencyMs", "Service", "fastapi-custom-metrics", "Endpoint", "/", { stat = "Average" }],
-            ["...", "Endpoint", "/Welcome", { stat = "Average" }],
-            ["...", "Endpoint", "/error", { stat = "Average" }]
+            ["CustomMetricsLogging/App", "ErrorCount", "Service", "fastapi-custom-metrics", "Endpoint", "/error", { stat = "Sum", label = "ErrorCount /error" }]
           ]
         }
       },
@@ -41,48 +45,18 @@ resource "aws_cloudwatch_dashboard" "custom_metrics" {
         type   = "metric"
         x      = 0
         y      = 6
-        width  = 12
-        height = 6
-        properties = {
-          title  = "Error Count"
-          view   = "timeSeries"
-          region = "eu-central-1"
-          metrics = [
-            ["CustomMetricsLogging/App", "ErrorCount", "Service", "fastapi-custom-metrics", "Endpoint", "/error", { stat = "Sum" }]
-          ]
-        }
-      },
-      {
-        type   = "metric"
-        x      = 12
-        y      = 6
-        width  = 12
-        height = 6
-        properties = {
-          title  = "Active Requests"
-          view   = "timeSeries"
-          region = "eu-central-1"
-          metrics = [
-            ["CustomMetricsLogging/App", "ActiveRequests", "Service", "fastapi-custom-metrics", "Endpoint", "/", { stat = "Maximum" }],
-            ["...", "Endpoint", "/Welcome", { stat = "Maximum" }],
-            ["...", "Endpoint", "/error", { stat = "Maximum" }]
-          ]
-        }
-      },
-      {
-        type   = "metric"
-        x      = 0
-        y      = 12
         width  = 24
         height = 6
         properties = {
-          title  = "Endpoint Invocations"
+          title  = "Business events"
           view   = "timeSeries"
           region = "eu-central-1"
+          period = 60
+          # Full metric rows (no "..." shorthand) so all three series resolve reliably in the console.
           metrics = [
-            ["CustomMetricsLogging/App", "EndpointInvocations", "Service", "fastapi-custom-metrics", "Endpoint", "/", { stat = "Sum" }],
-            ["...", "Endpoint", "/Welcome", { stat = "Sum" }],
-            ["...", "Endpoint", "/error", { stat = "Sum" }]
+            ["CustomMetricsLogging/App", "OrdersCount", "Service", "fastapi-custom-metrics", { stat = "Sum", label = "OrdersCount", period = 60 }],
+            ["CustomMetricsLogging/App", "UserSignupCount", "Service", "fastapi-custom-metrics", { stat = "Sum", label = "UserSignupCount", period = 60 }],
+            ["CustomMetricsLogging/App", "UserLoginCount", "Service", "fastapi-custom-metrics", { stat = "Sum", label = "UserLoginCount", period = 60 }]
           ]
         }
       }
@@ -119,46 +93,62 @@ resource "aws_cloudwatch_metric_alarm" "high_error_count" {
 }
 
 # ==============================================================================
-# ALARM TYPE 2: STATIC THRESHOLD - Performance Degradation
-# Severity: MEDIUM | Validates RequestLatencyMs metric
+# ALARM TYPE 2: ANOMALY DETECTION - User login volume
+# Severity: MEDIUM | CloudWatch model on UserLoginCount (custom business metric)
 # ==============================================================================
-resource "aws_cloudwatch_metric_alarm" "performance_degradation" {
-  alarm_name          = "szzuk-custom-metrics-logging-performance-degradation"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 2
-  metric_name         = "RequestLatencyMs"
-  namespace           = "CustomMetricsLogging/App"
-  period              = 60
-  statistic           = "Average"
-  threshold           = 100
-  alarm_description   = "[MEDIUM] Average latency >100ms for 2 minutes. Runbook: https://github.com/your-org/runbooks/high-latency"
-  treat_missing_data  = "notBreaching"
+resource "aws_cloudwatch_metric_alarm" "user_login_anomaly" {
+  alarm_name                = "szzuk-custom-metrics-logging-user-login-anomaly"
+  comparison_operator       = "LessThanLowerOrGreaterThanUpperThreshold"
+  evaluation_periods        = 3
+  threshold_metric_id       = "ad1"
+  alarm_description         = "[MEDIUM] UserLoginCount outside expected band (anomaly). May indicate traffic spike, abuse, or broken clients. Tune after baseline exists."
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
 
-  dimensions = {
-    Service = "fastapi-custom-metrics"
+  metric_query {
+    id          = "ad1"
+    expression  = "ANOMALY_DETECTION_BAND(m1, 2)"
+    label       = "UserLoginCount (expected range)"
+    return_data = true
+  }
+
+  metric_query {
+    id          = "m1"
+    return_data = true
+
+    metric {
+      metric_name = "UserLoginCount"
+      namespace   = "CustomMetricsLogging/App"
+      period      = 60
+      stat        = "Sum"
+
+      dimensions = {
+        Service = "fastapi-custom-metrics"
+      }
+    }
   }
 
   tags = {
     Severity = "MEDIUM"
-    Type     = "Threshold"
-    Runbook  = "high-latency"
+    Type     = "AnomalyDetection"
+    Runbook  = "login-anomaly"
   }
 }
 
 # ==============================================================================
-# ALARM TYPE 3: STATIC THRESHOLD - P99 Latency Spike
-# Severity: MEDIUM | Monitors tail latency
+# ALARM TYPE 3: STATIC THRESHOLD - High order volume (business metric)
+# Severity: LOW | Demo threshold on OrdersCount — adjust for real SLOs
 # ==============================================================================
-resource "aws_cloudwatch_metric_alarm" "latency_p99_spike" {
-  alarm_name          = "szzuk-custom-metrics-logging-latency-p99-spike"
+resource "aws_cloudwatch_metric_alarm" "high_orders_volume" {
+  alarm_name          = "szzuk-custom-metrics-logging-high-orders-volume"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
-  extended_statistic  = "p99"
-  metric_name         = "RequestLatencyMs"
+  metric_name         = "OrdersCount"
   namespace           = "CustomMetricsLogging/App"
   period              = 300
-  threshold           = 200
-  alarm_description   = "[MEDIUM] P99 latency >200ms. Affects 1% of users. Runbook: https://github.com/your-org/runbooks/tail-latency"
+  statistic           = "Sum"
+  threshold           = 40
+  alarm_description   = "[LOW] OrdersCount sum >40 in 5 minutes (lab-friendly; raise for production)."
   treat_missing_data  = "notBreaching"
 
   dimensions = {
@@ -166,9 +156,9 @@ resource "aws_cloudwatch_metric_alarm" "latency_p99_spike" {
   }
 
   tags = {
-    Severity = "MEDIUM"
+    Severity = "LOW"
     Type     = "Threshold"
-    Runbook  = "tail-latency"
+    Runbook  = "orders-volume"
   }
 }
 
@@ -179,9 +169,9 @@ resource "aws_cloudwatch_metric_alarm" "latency_p99_spike" {
 resource "aws_cloudwatch_metric_alarm" "high_error_rate" {
   alarm_name          = "szzuk-custom-metrics-logging-high-error-rate"
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 2
+  evaluation_periods  = 1
   threshold           = 10
-  alarm_description   = "[HIGH] Error rate >10% of total requests for 2 periods. Runbook: https://github.com/your-org/runbooks/high-error-rate"
+  alarm_description   = "[HIGH] Error rate >10% of requests (vs RequestLatencyMs sample count) in one 60s period. Runbook: https://github.com/your-org/runbooks/high-error-rate"
   treat_missing_data  = "notBreaching"
 
   metric_query {
@@ -205,10 +195,10 @@ resource "aws_cloudwatch_metric_alarm" "high_error_rate" {
     return_data = false
 
     metric {
-      metric_name = "RequestCount"
+      metric_name = "RequestLatencyMs"
       namespace   = "CustomMetricsLogging/App"
       period      = 60
-      stat        = "Sum"
+      stat        = "SampleCount"
 
       dimensions = {
         Service = "fastapi-custom-metrics"
@@ -231,42 +221,17 @@ resource "aws_cloudwatch_metric_alarm" "high_error_rate" {
 }
 
 # ==============================================================================
-# ALARM TYPE 5: STATIC THRESHOLD - Service Availability
-# Severity: CRITICAL | Detects complete service outage
-# ==============================================================================
-resource "aws_cloudwatch_metric_alarm" "service_unavailable" {
-  alarm_name          = "szzuk-custom-metrics-logging-service-unavailable"
-  comparison_operator = "LessThanThreshold"
-  evaluation_periods  = 2
-  metric_name         = "RequestCount"
-  namespace           = "CustomMetricsLogging/App"
-  period              = 300
-  statistic           = "Sum"
-  threshold           = 1
-  alarm_description   = "[CRITICAL] No requests for 10 minutes - service may be down. Runbook: https://github.com/your-org/runbooks/service-down"
-  treat_missing_data  = "breaching"
-
-  dimensions = {
-    Service = "fastapi-custom-metrics"
-  }
-
-  tags = {
-    Severity = "CRITICAL"
-    Type     = "Threshold"
-    Runbook  = "service-down"
-  }
-}
-
-# ==============================================================================
-# ALARM TYPE 6: COMPOSITE - Service Degraded
-# Severity: HIGH | Combines errors + latency for degraded state
+# ALARM TYPE 5: COMPOSITE - Errors + abnormal login traffic
+# Severity: HIGH | Fires when error spike coincides with anomalous UserLoginCount
+# Alarm name changed once from ...-service-degraded so Terraform can replace the
+# composite before AWS allows deleting old rule dependencies (e.g. performance_degradation).
 # ==============================================================================
 resource "aws_cloudwatch_composite_alarm" "service_degraded" {
-  alarm_name          = "szzuk-custom-metrics-logging-service-degraded"
-  alarm_description   = "[HIGH] Service is degraded: high errors AND high latency simultaneously. Runbook: https://github.com/your-org/runbooks/service-degraded"
-  actions_enabled     = true
+  alarm_name        = "szzuk-custom-metrics-logging-composite-errors-login-anomaly"
+  alarm_description = "[HIGH] High ErrorCount AND UserLoginCount anomaly together (possible incident or attack). Runbook: https://github.com/your-org/runbooks/service-degraded"
+  actions_enabled   = true
 
-  alarm_rule = "ALARM(${aws_cloudwatch_metric_alarm.high_error_count.alarm_name}) AND ALARM(${aws_cloudwatch_metric_alarm.performance_degradation.alarm_name})"
+  alarm_rule = "ALARM(${aws_cloudwatch_metric_alarm.high_error_count.alarm_name}) AND ALARM(${aws_cloudwatch_metric_alarm.user_login_anomaly.alarm_name})"
 
   tags = {
     Severity = "HIGH"

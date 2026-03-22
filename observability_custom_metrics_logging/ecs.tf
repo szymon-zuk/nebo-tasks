@@ -11,6 +11,47 @@ data "aws_iam_role" "ecs_task_execution_role" {
   name = "ecsTaskExecutionRole"
 }
 
+# Task role for the app container (PutMetricData). Execution role is separate (pull image, logs).
+resource "aws_iam_role" "ecs_task" {
+  name = "custom-metrics-logging-ecs-task-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "ecs_task_put_metrics" {
+  name = "PutCustomApplicationMetrics"
+  role = aws_iam_role.ecs_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "cloudwatch:PutMetricData"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "cloudwatch:namespace" = "CustomMetricsLogging/App"
+          }
+        }
+      }
+    ]
+  })
+}
+
 resource "aws_ecs_task_definition" "fastapi_task" {
   family = "custom-metrics-logging-task"
   container_definitions = jsonencode([
@@ -41,6 +82,7 @@ resource "aws_ecs_task_definition" "fastapi_task" {
   cpu                      = "256"
   memory                   = "512"
   execution_role_arn       = data.aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task.arn
 }
 
 resource "aws_ecs_service" "fastapi_service" {

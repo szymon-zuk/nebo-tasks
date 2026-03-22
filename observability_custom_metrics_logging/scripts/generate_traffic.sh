@@ -15,6 +15,12 @@ echo ""
 for i in $(seq 1 120); do
   curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/" > /dev/null
   curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/Welcome?name=Test$i" > /dev/null
+  curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/slow" > /dev/null
+  # Business endpoints (EMF business metrics + per-path latency/errors).
+  # Call all three every iteration so CloudWatch gets comparable sample rates (modulo was too sparse for login/signup).
+  curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE_URL/orders" > /dev/null
+  curl -s -o /dev/null -w "%{http_code}" -X POST -H "Content-Type: application/json" -d "{}" "$BASE_URL/auth/login" > /dev/null
+  curl -s -o /dev/null -w "%{http_code}" -X POST -H "Content-Type: application/json" -d "{}" "$BASE_URL/auth/signup" > /dev/null
   # Trigger some errors (for ErrorCount and alarm testing)
   if [ $((i % 15)) -eq 0 ]; then
     curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/error" > /dev/null
