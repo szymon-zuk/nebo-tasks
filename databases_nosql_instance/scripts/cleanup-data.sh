@@ -23,7 +23,7 @@
 set -euo pipefail
 
 # Configuration
-readonly PROFILE="softserve-lab"
+readonly PROFILE="${AWS_PROFILE:-softserve-lab}"
 readonly REGION="eu-central-1"
 readonly CHUNK_SIZE=25
 readonly MAX_RETRIES=5

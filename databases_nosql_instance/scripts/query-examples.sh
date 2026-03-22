@@ -13,7 +13,7 @@
 #   If TABLE_NAME is not provided, script reads it from terraform output.
 #
 # Requirements:
-#   - AWS CLI configured with softserve-lab profile
+#   - AWS CLI configured (profile from AWS_PROFILE, default softserve-lab)
 #   - DynamoDB table provisioned via terraform with sample data loaded
 #   - PriceIndex GSI configured on the table
 #   - jq for JSON parsing
@@ -43,7 +43,7 @@
 set -euo pipefail
 
 # AWS Configuration
-readonly PROFILE="softserve-lab"
+readonly PROFILE="${AWS_PROFILE:-softserve-lab}"
 readonly REGION="eu-central-1"
 
 # Get table name from terraform output or command line argument

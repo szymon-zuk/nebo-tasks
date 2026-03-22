@@ -1,10 +1,8 @@
 resource "aws_dynamodb_table" "products" {
-  name           = "${var.project_name}-${var.environment}-products"
-  billing_mode   = "PROVISIONED"
-  read_capacity  = 25
-  write_capacity = 25
-  hash_key       = "ProductID"
-  range_key      = "Category"
+  name         = "${var.project_name}-${var.environment}-products"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "ProductID"
+  range_key    = "Category"
 
   attribute {
     name = "ProductID"
@@ -26,8 +24,6 @@ resource "aws_dynamodb_table" "products" {
     hash_key        = "Category"
     range_key       = "Price"
     projection_type = "ALL"
-    read_capacity   = 25
-    write_capacity  = 25
   }
 
   tags = {

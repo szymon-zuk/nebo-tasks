@@ -12,7 +12,7 @@
 #   for UnprocessedItems with exponential backoff.
 #
 # Requirements:
-#   - aws CLI configured with profile softserve-lab
+#   - aws CLI configured (profile from AWS_PROFILE, default softserve-lab)
 #   - jq for JSON processing
 #   - terraform (if using terraform output to get table name)
 #   - data/sample-products.json file with product data
@@ -20,7 +20,7 @@
 set -euo pipefail
 
 # Configuration
-readonly PROFILE="softserve-lab"
+readonly PROFILE="${AWS_PROFILE:-softserve-lab}"
 readonly REGION="eu-central-1"
 readonly CHUNK_SIZE=25
 readonly MAX_RETRIES=5

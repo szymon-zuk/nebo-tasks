@@ -27,7 +27,7 @@
 #
 # Requirements:
 #   - terraform CLI (to read table name from outputs)
-#   - aws CLI configured with softserve-lab profile
+#   - aws CLI configured (profile from AWS_PROFILE, default softserve-lab)
 #   - jq for JSON processing
 #   - All operational scripts exist and are executable:
 #     - scripts/load-sample-data.sh
@@ -51,7 +51,7 @@
 set -euo pipefail
 
 # Configuration
-readonly PROFILE="softserve-lab"
+readonly PROFILE="${AWS_PROFILE:-softserve-lab}"
 readonly REGION="eu-central-1"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_DIR="$(dirname "$SCRIPT_DIR")"

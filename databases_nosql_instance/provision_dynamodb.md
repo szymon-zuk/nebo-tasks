@@ -4,6 +4,8 @@
 This task demonstrates provisioning and working with a **NoSQL database** on AWS using **Amazon DynamoDB**.  
 Commands provided will create a table named **`Games`**, insert sample data and perform CRUD and query operations — all within the **AWS Free Tier**.
 
+> **Terraform lab in this folder:** [README.md](README.md) provisions a different table (`szzuk-*-products`) with **on-demand** billing and an IAM app user. This file is a **standalone CLI** walkthrough using table `Games` and provisioned throughput.
+
 ---
 
 ## Acceptance Criteria
