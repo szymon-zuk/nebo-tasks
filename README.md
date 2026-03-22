@@ -30,6 +30,14 @@ Standalone AWS lab projects for DevOps/SRE practice: each folder is its own Terr
 
 ---
 
+### [`databases_sql_instance/`](databases_sql_instance/)
+
+**What it shows:** **Amazon RDS for PostgreSQL** in the **default VPC**, **Secrets Manager** credentials, **CIDR-restricted** access and **TLS** (`rds.force_ssl`), **local `psql` / `pg_dump`**, sample **schema/seed/queries** (including **JOIN**), and **RDS snapshot** / logical backups.
+
+**Design choices:** **Public RDS endpoint** locked to **`trusted_client_cidr`** avoids a lab VPC, jump host, SSM, and S3 while still demonstrating restricted network access from your workstation.
+
+---
+
 ### [`compute_autoscaling/`](compute_autoscaling/)
 
 **What it shows:** **ALB**-fronted **Auto Scaling Group** with **target tracking** (CPU), **step scaling** (request load), **scheduled** capacity (business hours), **SNS** scaling signals, and a **CloudWatch dashboard**.
@@ -58,7 +66,7 @@ Standalone AWS lab projects for DevOps/SRE practice: each folder is its own Terr
 
 **What it shows:** **Security groups** vs **NACLs** on a small VPC (or attach to existing): two instances, **8080** allowed end-to-end, **9090** open in SG but **blocked by NACL** to prove layer ordering; **VPC Flow Logs** to CloudWatch; **SSM**-driven test scripts.
 
-**Design choices:** One deliberately “misleading” port proves *both* SG and NACL must allow traffic; optional new VPC keeps the resource map readable; flow logs tie decisions to evidence.
+**Design choices:** One deliberately “misleading” port proves _both_ SG and NACL must allow traffic; optional new VPC keeps the resource map readable; flow logs tie decisions to evidence.
 
 ---
 
