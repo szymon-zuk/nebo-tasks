@@ -32,9 +32,9 @@ Standalone AWS lab projects for DevOps/SRE practice: each folder is its own Terr
 
 ### [`databases_sql_instance/`](databases_sql_instance/)
 
-**What it shows:** **Amazon RDS for PostgreSQL** in the **default VPC**, **Secrets Manager** credentials, **CIDR-restricted** access and **TLS** (`rds.force_ssl`), **local `psql` / `pg_dump`**, sample **schema/seed/queries** (including **JOIN**), and **RDS snapshot** / logical backups.
+**What it shows:** **Amazon RDS for PostgreSQL** in the **default VPC**, **Secrets Manager** credentials, **TLS** (`rds.force_ssl`), **5432 open to the Internet by default** (optional **`rds_ingress_ipv4_cidr`** lockdown), **local `psql` / `pg_dump`**, sample **schema/seed/queries** (including **JOIN**), and **RDS snapshot** / logical backups.
 
-**Design choices:** **Public RDS endpoint** locked to **`trusted_client_cidr`** avoids a lab VPC, jump host, SSM, and S3 while still demonstrating restricted network access from your workstation.
+**Design choices:** **Default VPC** + **public RDS** with **5432 open to `0.0.0.0/0` by default** (optional **`rds_ingress_ipv4_cidr`** lockdown); **TLS** + **Secrets Manager** still apply. Keeps the lab minimal versus a dedicated VPC, bastion, SSM, or S3.
 
 ---
 

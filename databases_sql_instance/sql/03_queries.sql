@@ -1,5 +1,3 @@
--- Demonstration queries: SELECT, JOIN, WHERE, ORDER BY (run as app user)
-
 \echo '--- All customers (ordered by name) ---'
 SELECT id, email, name, created_at
 FROM customers

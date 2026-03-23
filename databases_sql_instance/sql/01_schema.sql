@@ -1,5 +1,3 @@
--- Lab schema: customers and orders (run as master / admin)
-
 CREATE TABLE IF NOT EXISTS customers (
   id SERIAL PRIMARY KEY,
   email VARCHAR(255) NOT NULL UNIQUE,

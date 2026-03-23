@@ -1,34 +1,17 @@
 #!/usr/bin/env bash
-#
-# backup-pgdump.sh — Logical SQL dump with local pg_dump → backups/
-#
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-# shellcheck source=lib.sh
-source "$SCRIPT_DIR/lib.sh"
+LAB_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+command -v pg_dump >/dev/null && command -v jq >/dev/null
 
-command -v pg_dump >/dev/null 2>&1 || {
-  echo "pg_dump not found. Install a PostgreSQL client (major >= RDS), or use ./scripts/backup.sh (snapshot)." >&2
-  exit 1
-}
+EP="$(cd "$LAB_ROOT" && terraform output -raw rds_endpoint)"
+DB="$(cd "$LAB_ROOT" && terraform output -raw db_name)"
+ARN="$(cd "$LAB_ROOT" && terraform output -raw master_secret_arn)"
+J="$(aws secretsmanager get-secret-value --secret-id "$ARN" --profile softserve-lab --region eu-central-1 --query SecretString --output text)"
 
-RDS_ENDPOINT="${RDS_ENDPOINT:-$(terraform_output_raw rds_endpoint "$PROJECT_DIR")}"
-DB_NAME="${DB_NAME:-$(terraform_output_raw db_name "$PROJECT_DIR")}"
-MASTER_ARN="${MASTER_SECRET_ARN:-$(terraform_output_raw master_secret_arn "$PROJECT_DIR")}"
+export PGSSLMODE=require PGPASSWORD="$(echo "$J" | jq -r .password)"
+U="$(echo "$J" | jq -r .username)"
 
-JSON="$(secret_string "$MASTER_ARN")"
-export PGSSLMODE=require
-export PGPASSWORD
-PGPASSWORD="$(echo "$JSON" | jq -r .password)"
-USER="$(echo "$JSON" | jq -r .username)"
-
-mkdir -p "$PROJECT_DIR/backups"
-STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
-OUT="$PROJECT_DIR/backups/pg_dump-${STAMP}.sql"
-
-echo "pg_dump → $OUT"
-pg_dump -h "$RDS_ENDPOINT" -U "$USER" -d "$DB_NAME" --no-owner --no-acl -f "$OUT"
-
-echo "backup-pgdump: wrote $OUT"
+mkdir -p "$LAB_ROOT/backups"
+OUT="$LAB_ROOT/backups/pg_dump-$(date -u +%Y%m%dT%H%M%SZ).sql"
+pg_dump -h "$EP" -U "$U" -d "$DB" --no-owner --no-acl -f "$OUT"

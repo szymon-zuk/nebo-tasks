@@ -225,6 +225,9 @@ tfplan
 *.bin
 plans/
 
+# SQL lab: logical backups can contain full schema/data; keep local only
+databases_sql_instance/backups/
+
 databases_nosql_instance/.terraform.lock.hcl
 databases_nosql_instance/terraform.tfstate
 

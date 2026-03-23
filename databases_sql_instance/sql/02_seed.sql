@@ -1,5 +1,3 @@
--- Sample data (run as application user with INSERT privileges)
-
 INSERT INTO customers (email, name)
 SELECT 'alice@example.com', 'Alice Example'
 WHERE NOT EXISTS (SELECT 1 FROM customers WHERE email = 'alice@example.com');
